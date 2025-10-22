@@ -13,6 +13,7 @@ const PORT = process.env.PORT || 5000;
 
 //Middleware pour parser le JSON
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));//Middleware pour parser les données URL-encodées
 
 //Middleware CORS
 app.use(cors());
