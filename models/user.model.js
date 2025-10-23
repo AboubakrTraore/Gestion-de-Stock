@@ -2,7 +2,6 @@
 const {DataTypes} = require('sequelize');// Importation de DataTypes depuis Sequelize
 const db = require('../config/config');// Importation de la configuration de la base de données
 const bcrypt = require('bcrypt');// Importation de bcrypt pour le hachage des mots de passe
-const { isValidElement } = require('react');
 
 // Définition du modèle User    
 const User = db.define('User', {
@@ -57,7 +56,7 @@ const User = db.define('User', {
     updated_by: {
         type: DataTypes.INTEGER,
         allowNull: true,
-    },
+    }
 }, 
 {
     tableName: 'users', // Nom de la table dans la base de données
