@@ -41,5 +41,6 @@ const Commande = db.define('Commande', {
 {
  tableName: 'commandes',
  timestamps: true,
+ 
 });
 module.exports = Commande;

@@ -35,7 +35,7 @@ const User = db.define('User', {
         allowNull: false,
     },
     role: {
-        type: Enumerator(DataTypes.STRING, ['admin', 'employé']),
+        type: DataTypes.ENUM('admin', 'employé'),
         allowNull: false,
         defaultValue: 'employé',
     },
@@ -61,6 +61,11 @@ const User = db.define('User', {
 {
     tableName: 'users', // Nom de la table dans la base de données
     timestamps: true,   // Ajout des champs createdAt et updatedAt
+    //Ajout des index pour optimiser les recherches
+    indexes: [
+        { unique: true, fields: ['email'] },
+        { unique: true, fields: ['tel'] },
+    ],
 });
 
 module.exports = User;

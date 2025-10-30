@@ -2,6 +2,7 @@ const express = require('express');
 const dotenv = require('dotenv');
 const cors = require('cors');
 const db = require('./config/config');
+const createInitialAdmin = require('./seeders/seed');
 
 dotenv.config();
 
@@ -20,11 +21,16 @@ app.use(cors());
 
 //Lancer le serveur
 app.listen(PORT, async () => {
-
+    
     //Vérification de la connexion à la base de données
     try {
         await db.authenticate();    
         console.log('Connexion à la base de données réussies.');
+
+        const shouldAlter = process.env.DB_SYNC_ALTER  === 'true';
+        await db.sync({ alter: shouldAlter });
+        console.log('Toutes les tables sont synchronisées.');
+
     } catch (error) {
         console.error('Impossible de se connecter à la base de données :', error);
     }  

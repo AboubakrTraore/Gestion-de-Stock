@@ -1,4 +1,4 @@
-const sequalize = require('sequelize');
+const { Sequelize } = require('sequelize');
 require('dotenv').config();
 
 //Vérification des variables d'environnement
@@ -7,7 +7,7 @@ if(!process.env.DATABASE_URL) {
 }
 
 //Configuration de la connexion à la base de données
-const db = sequelize (process.env.DATABASE_URL, {
+const db = new Sequelize(process.env.DATABASE_URL, {
     dialect: 'postgres',
     protocol: 'postgres',
 //Vérification SSL pour les connexions sécurisées
