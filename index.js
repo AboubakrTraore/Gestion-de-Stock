@@ -16,6 +16,7 @@ const Details_Commande = require('./models/details_commande.model');
 const Produit_fournisseurs = require('./models/produit_fournisseurs.model');
 const Client = require('./models/client.model');
 const { definirAssociations } = require('./models/relation.model');
+const authRoutes = require('./routes/auth.route');
 
 dotenv.config();
 
@@ -29,8 +30,13 @@ const PORT = process.env.PORT || 5000;
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));//Middleware pour parser les données URL-encodées
 
+//Routes d'API
+app.use('/api/auth', authRoutes);
+
+
 //Middleware CORS
 app.use(cors());
+
 
 //Lancer le serveur
 app.listen(PORT, async () => {
