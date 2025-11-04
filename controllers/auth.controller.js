@@ -2,7 +2,8 @@ const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 const User = require('../models/user.model');
 
-
+//gestion de la cle secrete
+const JWT_SECRET = process.env.JWT_SECRET || 'votre_cle_secrete_par_defaut'
 
 class AuthController {
     // Fonction pour la connexion
@@ -19,10 +20,13 @@ class AuthController {
                 return res.status(401).json({ message: 'Mot de passe incorrect' });
             }
             // Génération du token JWT
-            if (!process.env.JWT_SECRET) {
-                return res.status(500).json({ message: 'JWT_SECRET manquant dans les variables d\'environnement' });
-            }
-            const token = jwt.sign({ userId: user.id }, process.env.JWT_SECRET, { expiresIn: '1h' });
+            
+            // Création du Token JWT
+            const token = jwt.sign({ id: user.id }, JWT_SECRET, {
+                expiresIn: 3600 // 1 heure
+            });
+
+            // Envoie de la réponse
             return res.status(200).json({
                 token,
                 user: {
