@@ -5,9 +5,9 @@ const reception = require('./reception.model');
 const mouvement_stock = require('./mouvement_stock.model');
 const produit = require('./produit.model');
 const categorie = require('./categorie.model');
-const fournisseur = require('./fournisseur.model');
+const fournisseur = require('./Fournisseur.model');
 const detail_reception = require('./detail_reception.model');
-const detail_commande = require('./detail_commande.model');
+const Details_Commande = require('./details_commande.model');
 const produit_fournisseurs = require('./produit_fournisseurs.model');
 const client = require('./client.model');
 
@@ -20,7 +20,7 @@ const db = {
     Categorie: categorie,
     Fournisseur: fournisseur,
     Detail_Reception: detail_reception,
-    Detail_Commande: detail_commande,
+    Details_Commande: Details_Commande,
     Produit_fournisseurs: produit_fournisseurs,
     Client: client,
 };

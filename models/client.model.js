@@ -1,8 +1,8 @@
 const {DataTypes} = require('sequelize');// Importation de DataTypes depuis Sequelize
 const db = require('../config/config');// Importation de la configuration de la base de données 
 
-// Définition du modèle Fournisseur
-const Fournisseur = db.define('Fournisseur', {
+// Définition du modèle Client
+const Client = db.define('Client', {
     id: {
         type: DataTypes.INTEGER,    
         primaryKey: true,   
@@ -17,16 +17,23 @@ const Fournisseur = db.define('Fournisseur', {
         allowNull: false,
         unique: true,
         validate: { 
-            is: /^[0-9+\-() ]+$/i, // Validation pour les numéros de téléphone
+            is: /^[0-9+\-() ]+$/i,
         },
     },  
-    adress: {
+    email: {
         type: DataTypes.STRING,
-        allowNull: false,
+        allowNull: true,
+        validate: {
+            isEmail: true,
+        },
+    },
+    address: {
+        type: DataTypes.TEXT,
+        allowNull: true,
     }
 },
 {
     tableName: 'clients',
     timestamps: true,
 });
-module.exports= Client;
+module.exports = Client;

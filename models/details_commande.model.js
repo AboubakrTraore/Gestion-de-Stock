@@ -21,7 +21,7 @@ const Details_Commande = db.define('Details_Commande', {
         allowNull:false,
         references: {
             model: 'produits',
-            id: 'id',
+            key: 'id',
         },
     },
     quantite:{

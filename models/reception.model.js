@@ -6,11 +6,13 @@ const db = require('../config/config');// Importation de la configuration de la 
 const Reception= db.define('Reception',{
        id:{
         type:DataTypes.INTEGER,
-        alowNul:false,
+        allowNull:false,
+        primaryKey: true,
+        autoIncrement: true,
        },
        fournisseur_id:{
         type:DataTypes.INTEGER,
-        alowNul:false,
+        allowNull:false,
         references:{
             model:'fournisseurs',
             key:'id'
@@ -18,7 +20,7 @@ const Reception= db.define('Reception',{
        },
        user_id:{
         type:DataTypes.INTEGER,
-        alowNul:false,
+        allowNull:false,
         references:{
             model:'users',
             key:'id'
@@ -26,16 +28,16 @@ const Reception= db.define('Reception',{
        },
        date_reception:{
         type:DataTypes.DATE,
-        alowNul:false,
+        allowNull:false,
        },
        statut:{
         type:DataTypes.ENUM('en_attente', 'en_cours', 'livrée', 'annulée'),
-        alowNul:false,
+        allowNull:false,
         defaultValue:'en_attente',
        },
        reference_facture:{
         type:DataTypes.STRING,
-        alowNul:false,
+        allowNull:false,
        }
 },
 {

@@ -1,19 +1,19 @@
-const sequelize = require("sequelize");
-const db = require ('../config/config');
+const { DataTypes } = require('sequelize');
+const db = require('../config/config');
 
 //Définition du model produit_fournisseurs
 const Produit_fournisseurs = db.define('Produit_fournisseurs',{
     produit_id:{
         type: DataTypes.INTEGER,
-        allowNul: false,
+        allowNull: false,
         references:{
             model: 'produits',
             key: 'id',
         },
     },
     fournisseur_id:{
-        type: Datatypes.INTEGER,
-        allowNul:false,
+        type: DataTypes.INTEGER,
+        allowNull:false,
         references:{
             model:'fournisseurs',
             key: 'id',
@@ -21,8 +21,8 @@ const Produit_fournisseurs = db.define('Produit_fournisseurs',{
         } 
     },
     prix_achat_actuel:{
-        type: Datatypes.DECIMAL,
-        allowNul:false,
+        type: DataTypes.DECIMAL,
+        allowNull:false,
     }
 },
 {

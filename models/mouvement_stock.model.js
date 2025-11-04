@@ -17,7 +17,7 @@ const Mouvement_Stock = db.define('Mouvement_Stock', {
         },
     },
     type_mouvement:{
-        type: DataTypes.ENUM('entrée', 'sortie',ajustement),
+        type: DataTypes.ENUM('entrée', 'sortie', 'ajustement'),
         allowNull: false,
     },
     quantite:{
@@ -34,15 +34,15 @@ const Mouvement_Stock = db.define('Mouvement_Stock', {
     },
    detail_commande_id:{
     type: DataTypes.INTEGER,
-    allowNull: false,
+    allowNull: true,
     references:{
-        model:'detail_commandes',
+        model:'details_commandes',
         key:'id'
     },
    },
    detail_reception_id:{
     type: DataTypes.INTEGER,
-    allowNull: false,
+    allowNull: true,
     references:{
         model:'detail_receptions',
         key:'id'
