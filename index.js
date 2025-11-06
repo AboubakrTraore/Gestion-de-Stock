@@ -46,7 +46,8 @@ app.listen(PORT, async () => {
         await db.authenticate();    
         console.log('Connexion à la base de données réussies.');
 
-        const shouldAlter = process.env.DB_SYNC_ALTER  === 'true';
+        const shouldAlter = process.env.DB_SYNC_ALTER === 'true';
+        const shouldForce = process.env.DB_SYNC_FORCE === 'true';
         // Définir les associations avant la synchronisation
         definirAssociations({
             User,
@@ -61,7 +62,13 @@ app.listen(PORT, async () => {
             Produit_fournisseurs,
             Client,
         });
-        await db.sync({ alter: shouldAlter });//Synchronisation des tables
+        //Synchronisation des tables
+        if (shouldForce) {
+            console.warn('ATTENTION: Reconstruction complète des tables (force=true). Les données seront supprimées.');
+            await db.sync({ force: true });
+        } else {
+            await db.sync({ alter: shouldAlter });
+        }
         console.log('Toutes les tables sont synchronisées.');
 
         // Créer l'admin initial après la synchronisation (sans fermer la connexion)

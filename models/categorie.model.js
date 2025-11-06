@@ -4,9 +4,9 @@ const db = require('../config/config');
 // Définition du modèle Categorie
 const Categorie = db.define('Categorie', {
     id: {
-        type: DataTypes.INTEGER,
+        type: DataTypes.UUID,
         primaryKey: true,
-        autoIncrement: true,
+        defaultValue: DataTypes.UUIDV4,
     },
     name: {
         type: DataTypes.STRING,

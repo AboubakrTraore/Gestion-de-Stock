@@ -4,9 +4,9 @@ const db = require('../config/config');// Importation de la configuration de la 
 // Définition du modèle Client
 const Client = db.define('Client', {
     id: {
-        type: DataTypes.INTEGER,    
+        type: DataTypes.UUID,    
         primaryKey: true,   
-        autoIncrement: true,    
+        defaultValue: DataTypes.UUIDV4,   
     },  
     name: {
         type: DataTypes.STRING,

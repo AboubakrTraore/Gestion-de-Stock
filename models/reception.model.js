@@ -5,13 +5,13 @@ const db = require('../config/config');// Importation de la configuration de la 
 
 const Reception= db.define('Reception',{
        id:{
-        type:DataTypes.INTEGER,
+        type:DataTypes.UUID,
         allowNull:false,
         primaryKey: true,
-        autoIncrement: true,
+        defaultValue: DataTypes.UUIDV4,
        },
        fournisseur_id:{
-        type:DataTypes.INTEGER,
+        type:DataTypes.UUID,
         allowNull:false,
         references:{
             model:'fournisseurs',
@@ -19,7 +19,7 @@ const Reception= db.define('Reception',{
             },
        },
        user_id:{
-        type:DataTypes.INTEGER,
+        type:DataTypes.UUID,
         allowNull:false,
         references:{
             model:'users',

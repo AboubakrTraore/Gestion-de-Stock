@@ -4,20 +4,21 @@ const db = require('../config/config');// Importation de la configuration de la 
 // Définition du modèle Detail_Reception
 const Detail_Reception = db.define('Detail_Reception', {
     id: {
-        type: DataTypes.INTEGER,
+        type: DataTypes.UUID,
         primaryKey: true,
-        autoIncrement: true,
+        defaultValue: DataTypes.UUIDV4,
     },
     reception_id:{
-        type: DataTypes.INTEGER,
+        type: DataTypes.UUID,
         allowNull: false,
         references:{
             model:'receptions',
             key:'id'
         },
+        defaultValue: DataTypes.UUIDV4,
     },
     produit_id:{
-        type: DataTypes.INTEGER,
+        type: DataTypes.UUID,
         allowNull: false,
         references:{
             model:'produits',

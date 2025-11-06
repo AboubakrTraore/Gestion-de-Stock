@@ -25,113 +25,80 @@ const db = {
     Client: client,
 };
 
-function definirAssociations(db) {
+function definirAssociations(models) {
+    const m = models || db;
 
-    // --- 1. Pôle Acteurs ---
-  
     // User (1) -> (N) Commandes
-    db.User.hasMany(db.Commande, { foreignKey: 'user_id' });
-    db.Commande.belongsTo(db.User, { foreignKey: 'user_id' });
-  
+    m.User.hasMany(m.Commande, { foreignKey: 'user_id' });
+    m.Commande.belongsTo(m.User, { foreignKey: 'user_id' });
+
     // User (1) -> (N) Receptions
-    db.User.hasMany(db.Reception, { foreignKey: 'user_id' });
-    db.Reception.belongsTo(db.User, { foreignKey: 'user_id' });
-  
+    m.User.hasMany(m.Reception, { foreignKey: 'user_id' });
+    m.Reception.belongsTo(m.User, { foreignKey: 'user_id' });
+
     // User (1) -> (N) MouvementsStock
-    db.User.hasMany(db.Mouvement_Stock, { foreignKey: 'user_id' });
-    db.Mouvement_Stock.belongsTo(db.User, { foreignKey: 'user_id' });
-  
-    // User (1) -> (N) Produits (Traçabilité)
-    db.User.hasMany(db.Produit, { foreignKey: 'created_by', as: 'ProduitsCrees' });
-    db.User.hasMany(db.Produit, { foreignKey: 'updated_by', as: 'ProduitsModifies' });
-    db.Produit.belongsTo(db.User, { foreignKey: 'created_by', as: 'Createur' });
-    db.Produit.belongsTo(db.User, { foreignKey: 'updated_by', as: 'Modificateur' });
-  
+    m.User.hasMany(m.Mouvement_Stock, { foreignKey: 'user_id' });
+    m.Mouvement_Stock.belongsTo(m.User, { foreignKey: 'user_id' });
+
+    // Traçabilité Produit
+    m.User.hasMany(m.Produit, { foreignKey: 'created_by', as: 'ProduitsCrees' });
+    m.User.hasMany(m.Produit, { foreignKey: 'updated_by', as: 'ProduitsModifies' });
+    m.Produit.belongsTo(m.User, { foreignKey: 'created_by', as: 'Createur' });
+    m.Produit.belongsTo(m.User, { foreignKey: 'updated_by', as: 'Modificateur' });
+
     // Client (1) -> (N) Commandes
-    db.Client.hasMany(db.Commande, { 
-      foreignKey: 'client_id',
-      onDelete: 'SET NULL' // Garde la commande si le client est supprimé
-    });
-    db.Commande.belongsTo(db.Client, { foreignKey: 'client_id' });
-  
-  
-    // --- 2. Pôle Catalogue (Produits & Fournisseurs) ---
-  
+    m.Client.hasMany(m.Commande, { foreignKey: 'client_id', onDelete: 'SET NULL' });
+    m.Commande.belongsTo(m.Client, { foreignKey: 'client_id' });
+
     // Categorie (1) -> (N) Produits
-    db.Categorie.hasMany(db.Produit, { foreignKey: 'categorie_id' });
-    db.Produit.belongsTo(db.Categorie, { foreignKey: 'categorie_id' });
-  
-    // Relation N:M : Produit (N) <-> (M) Fournisseur
-    // Sequelize gère la table 'Produit_fournisseurs' pour nous.
-    db.Produit.belongsToMany(db.Fournisseur, {
-      through: db.Produit_fournisseurs, // Nom du modèle de la table de liaison
-      foreignKey: 'produit_id',
-      as: 'Fournisseurs'
+    m.Categorie.hasMany(m.Produit, { foreignKey: 'categorie_id' });
+    m.Produit.belongsTo(m.Categorie, { foreignKey: 'categorie_id' });
+
+    // Produit (N) <-> (M) Fournisseur via table de liaison
+    m.Produit.belongsToMany(m.Fournisseur, {
+        through: m.Produit_fournisseurs,
+        foreignKey: 'produit_id',
+        as: 'Fournisseurs'
     });
-    db.Fournisseur.belongsToMany(db.Produit, {
-      through: db.Produit_fournisseurs,
-      foreignKey: 'fournisseur_id',
-      as: 'Produits'
+    m.Fournisseur.belongsToMany(m.Produit, {
+        through: m.Produit_fournisseurs,
+        foreignKey: 'fournisseur_id',
+        as: 'Produits'
     });
-  
-  
-    // --- 3. Pôle Ventes (Sorties) ---
-  
+
     // Commande (1) -> (N) Details_Commande
-    db.Commande.hasMany(db.Details_Commande, { 
-      foreignKey: 'commande_id',
-      onDelete: 'CASCADE' // Supprime les lignes si la commande est supprimée
-    });
-    db.Details_Commande.belongsTo(db.Commande, { foreignKey: 'commande_id' });
-  
+    m.Commande.hasMany(m.Details_Commande, { foreignKey: 'commande_id', onDelete: 'CASCADE' });
+    m.Details_Commande.belongsTo(m.Commande, { foreignKey: 'commande_id' });
+
     // Produit (1) -> (N) Details_Commande
-    db.Produit.hasMany(db.Details_Commande, { foreignKey: 'produit_id' });
-    db.Details_Commande.belongsTo(db.Produit, { 
-      foreignKey: 'produit_id',
-      onDelete: 'RESTRICT' // Bloque la suppression du produit s'il est vendu
-    });
-  
-  
-    // --- 4. Pôle Achats (Entrées) ---
-  
+    m.Produit.hasMany(m.Details_Commande, { foreignKey: 'produit_id' });
+    m.Details_Commande.belongsTo(m.Produit, { foreignKey: 'produit_id', onDelete: 'RESTRICT' });
+
     // Fournisseur (1) -> (N) Receptions
-    db.Fournisseur.hasMany(db.Reception, { foreignKey: 'fournisseur_id' });
-    db.Reception.belongsTo(db.Fournisseur, { foreignKey: 'fournisseur_id' });
-  
+    m.Fournisseur.hasMany(m.Reception, { foreignKey: 'fournisseur_id' });
+    m.Reception.belongsTo(m.Fournisseur, { foreignKey: 'fournisseur_id' });
+
     // Reception (1) -> (N) Detail_Reception
-    db.Reception.hasMany(db.Detail_Reception, { 
-      foreignKey: 'reception_id',
-      onDelete: 'CASCADE' 
-    });
-    db.Detail_Reception.belongsTo(db.Reception, { foreignKey: 'reception_id' });
-  
+    m.Reception.hasMany(m.Detail_Reception, { foreignKey: 'reception_id', onDelete: 'CASCADE' });
+    m.Detail_Reception.belongsTo(m.Reception, { foreignKey: 'reception_id' });
+
     // Produit (1) -> (N) Detail_Reception
-    db.Produit.hasMany(db.Detail_Reception, { foreignKey: 'produit_id' });
-    db.Detail_Reception.belongsTo(db.Produit, { 
-      foreignKey: 'produit_id',
-      onDelete: 'RESTRICT'
-    });
-  
-  
-    // --- 5. Pôle Stock (Le Cerveau) ---
-  
+    m.Produit.hasMany(m.Detail_Reception, { foreignKey: 'produit_id' });
+    m.Detail_Reception.belongsTo(m.Produit, { foreignKey: 'produit_id', onDelete: 'RESTRICT' });
+
     // Produit (1) -> (N) MouvementsStock
-    db.Produit.hasMany(db.Mouvement_Stock, { foreignKey: 'produit_id' });
-    db.Mouvement_Stock.belongsTo(db.Produit, { foreignKey: 'produit_id' });
-  
-    // [CORRECTION 1:1] Details_Commande (1) -> (1) MouvementsStock (Cause de sortie)
-    db.Details_Commande.hasOne(db.Mouvement_Stock, { 
-      foreignKey: 'detail_commande_id',
-      onDelete: 'SET NULL' // Garde l'historique du mouvement
-    });
-    db.Mouvement_Stock.belongsTo(db.Details_Commande, { foreignKey: 'detail_commande_id' });
-  
-    // [CORRECTION 1:1] Detail_Reception (1) -> (1) MouvementsStock (Cause d'entrée)
-    db.Detail_Reception.hasOne(db.Mouvement_Stock, { 
-      foreignKey: 'detail_reception_id',
-      onDelete: 'SET NULL' 
-    });
-    db.Mouvement_Stock.belongsTo(db.Detail_Reception, { foreignKey: 'detail_reception_id' });
-  }
-  
-  module.exports = { definirAssociations };
+    m.Produit.hasMany(m.Mouvement_Stock, { foreignKey: 'produit_id' });
+    m.Mouvement_Stock.belongsTo(m.Produit, { foreignKey: 'produit_id' });
+
+    // Details_Commande (1) -> (1) MouvementsStock
+    m.Details_Commande.hasOne(m.Mouvement_Stock, { foreignKey: 'detail_commande_id', onDelete: 'SET NULL' });
+    m.Mouvement_Stock.belongsTo(m.Details_Commande, { foreignKey: 'detail_commande_id' });
+
+    // Detail_Reception (1) -> (1) MouvementsStock
+    m.Detail_Reception.hasOne(m.Mouvement_Stock, { foreignKey: 'detail_reception_id', onDelete: 'SET NULL' });
+    m.Mouvement_Stock.belongsTo(m.Detail_Reception, { foreignKey: 'detail_reception_id' });
+}
+
+module.exports = { definirAssociations };
+
+

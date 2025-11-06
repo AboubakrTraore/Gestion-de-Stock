@@ -4,9 +4,9 @@ const db = require('../config/config');// Importation de la configuration de la 
 //Définition du model produit
 const Produit = db.define ('Produit',{
     id:{
-        type: DataTypes.INTEGER,
+        type: DataTypes.UUID,
         primaryKey: true,
-        autoIncrement: true,
+        defaultValue: DataTypes.UUIDV4,
     },
     name: {
         type: DataTypes.STRING,
@@ -25,7 +25,7 @@ const Produit = db.define ('Produit',{
         allowNull: false,
     },
     categorie_id:{
-        type: DataTypes.INTEGER,
+        type: DataTypes.UUID,
         allowNull:false, 
         references:{
             model: 'categories',
@@ -37,7 +37,7 @@ const Produit = db.define ('Produit',{
         allowNull: true,
     },
     created_by:{
-        type:DataTypes.INTEGER,
+        type:DataTypes.UUID,
         allowNull: false,
         references:{
             model: 'users',
@@ -45,7 +45,7 @@ const Produit = db.define ('Produit',{
         },
     },
     updated_by:{
-        type:DataTypes.INTEGER,
+        type:DataTypes.UUID,
         allowNull:false,
         references:{
             model: 'users',

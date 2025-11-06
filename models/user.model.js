@@ -6,9 +6,9 @@ const bcrypt = require('bcrypt');// Importation de bcrypt pour le hachage des mo
 // Définition du modèle User    
 const User = db.define('User', {
     id: {
-        type: DataTypes.INTEGER,
+        type: DataTypes.UUID,
         primaryKey: true,   
-        autoIncrement: true,
+        defaultValue: DataTypes.UUIDV4,
     },  
     username: {
         type: DataTypes.STRING,
@@ -50,11 +50,11 @@ const User = db.define('User', {
         defaultValue: false,
     },
     created_by: {
-        type: DataTypes.INTEGER,
+        type: DataTypes.UUID,
         allowNull: true,
     },
     updated_by: {
-        type: DataTypes.INTEGER,
+        type: DataTypes.UUID,
         allowNull: true,
     }
 }, 

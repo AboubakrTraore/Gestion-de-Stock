@@ -4,12 +4,12 @@ const db = require('../config/config');// Importation de la configuration de la 
 // Définition du modèle Mouvement_Stock
 const Mouvement_Stock = db.define('Mouvement_Stock', {
     id: {
-        type: DataTypes.INTEGER,
+        type: DataTypes.UUID,
         primaryKey: true,
-        autoIncrement: true,
+        defaultValue: DataTypes.UUIDV4,
     },
     produit_id:{
-        type: DataTypes.INTEGER,
+        type: DataTypes.UUID,
         allowNull: false,   
         references:{
             model:'produits',
@@ -25,7 +25,7 @@ const Mouvement_Stock = db.define('Mouvement_Stock', {
         allowNull: false,
     },
     user_id:{
-        type: DataTypes.INTEGER,
+        type: DataTypes.UUID,
         allowNull: false,
         references:{
             model:'users',
@@ -33,7 +33,7 @@ const Mouvement_Stock = db.define('Mouvement_Stock', {
         },
     },
    detail_commande_id:{
-    type: DataTypes.INTEGER,
+    type: DataTypes.UUID,
     allowNull: true,
     references:{
         model:'details_commandes',
@@ -41,7 +41,7 @@ const Mouvement_Stock = db.define('Mouvement_Stock', {
     },
    },
    detail_reception_id:{
-    type: DataTypes.INTEGER,
+    type: DataTypes.UUID,
     allowNull: true,
     references:{
         model:'detail_receptions',

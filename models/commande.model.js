@@ -4,12 +4,12 @@ const db = require('../config/config');// Importation de la configuration de la 
 // Définition du modèle Fournisseur
 const Commande = db.define('Commande', {
     id: {
-        type: DataTypes.INTEGER,    
+        type: DataTypes.UUID,    
         primaryKey: true,   
-        autoIncrement: true,
+        defaultValue: DataTypes.UUIDV4,
     },
     client_id:{
-        type: DataTypes.INTEGER,
+        type: DataTypes.UUID,
         allowNull: false,
         references:{
             model: 'clients',
@@ -17,7 +17,7 @@ const Commande = db.define('Commande', {
         },
     },
     user_id:{    
-        type:DataTypes.INTEGER,
+        type:DataTypes.UUID,
         allowNull:false,
         references:{
             model: 'users',
