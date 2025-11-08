@@ -17,6 +17,7 @@ const Produit_fournisseurs = require('./models/produit_fournisseurs.model');
 const Client = require('./models/client.model');
 const { definirAssociations } = require('./models/relation.model');
 const authRoutes = require('./routes/auth.route');
+const usersRoutes = require('./routes/users.route');
 
 dotenv.config();
 
@@ -32,6 +33,7 @@ app.use(express.urlencoded({ extended: true }));//Middleware pour parser les don
 
 //Routes d'API
 app.use('/api/auth', authRoutes);
+app.use('/api/users', usersRoutes);
 
 
 //Middleware CORS

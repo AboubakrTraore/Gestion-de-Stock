@@ -42,7 +42,7 @@ class AuthController {
     }
     // Fonction pour la déconnexion
     static async logout(req, res) {
-        res.clearCookie('token');
+        
         res.status(200).json({ message: 'Déconnexion réussie' });
     }
 }
