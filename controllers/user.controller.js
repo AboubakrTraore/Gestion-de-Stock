@@ -43,6 +43,42 @@ class UserController {
             res.status(500).json({ error: error.message });
         }
     }
+
+    // Fonction pour ajouter un utilisateur (POST /api/users)
+    static createUser = async (req, res) => {
+        const { username, email, password, tel, role } = req.body;
+        
+
+        let userrole = role;
+        
+        if (role && role.toLowerCase() === 'admin') {
+            userrole = 'admin';
+        } else {
+            userrole = 'employé';
+        }
+        //hasher le mot de passe
+        const hashedPassword = await bcrypt.hash(password, 10);
+
+        try {
+            const user = await User.create({
+                username,
+                email,
+                password: hashedPassword,
+                tel,
+                role: userrole
+            });
+
+            //Supprimer le mot de passe de la réponse
+            const UserResponse = user.toJSON();
+            delete UserResponse.password;
+            console.log('L\'Utilisateur a été créé avec succès')
+            return res.status(201).json(UserResponse);
+
+        } catch (error) {
+            console.error('Erreur lors de la création de l\'utilisateur :', error);
+            res.status(500).json({ error: error.message });
+        }
+    }
 }
 
 

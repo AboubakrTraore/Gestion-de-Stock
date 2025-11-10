@@ -36,6 +36,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/users', usersRoutes);
 
 
+
 //Middleware CORS
 app.use(cors());
 

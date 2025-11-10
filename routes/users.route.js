@@ -6,6 +6,7 @@ const checkRole  = require('../middleware/role.middleware');
 //Routes pour les utilisateurs
 router.get('/users', checkRole('admin'), User.getAllUsers);
 router.get('/users/:id', checkRole('admin'), User.getUserById);
+router.post('/users', checkRole('admin'), User.createUser);
 
 module.exports = router;
 
