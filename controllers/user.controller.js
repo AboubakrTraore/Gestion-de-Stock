@@ -1,6 +1,7 @@
 const express = require('express');
 const User = require('../models/user.model');
 const Op = require('sequelize').Op;
+const bcrypt = require('bcryptjs');
 
 
 class UserController {
@@ -11,7 +12,7 @@ class UserController {
         try {
             const users = await User.findAll({ 
                 // Exclure le mot de passe dans la réponse
-                attributes: { exclude: ['passsword'] } 
+                attributes: { exclude: ['password'] } 
             });
             
             if (users.length === 0) {

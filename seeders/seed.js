@@ -2,7 +2,7 @@
 
 // 1. Imports et chargement DOTENV
 require('dotenv').config();
-const bcrypt = require('bcrypt');
+const bcrypt = require('bcryptjs');
 const db = require('../config/config');
 const User = require('../models/user.model');
 
@@ -24,9 +24,9 @@ async function createInitialAdmin() {
     });
 
     if (created) {
-        console.log(`✅ Administrateur initial [${user.email}] créé avec succès !`);
+        console.log(`Administrateur initial [${user.email}] créé avec succès !`);
     } else {
-        console.log(`ℹ️ L'administrateur initial [${user.email}] existe déjà. Skipping.`);
+        console.log(`L'administrateur initial [${user.email}] existe déjà. Skipping.`);
     }
 }
 
