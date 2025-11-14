@@ -10,7 +10,7 @@ const Reception = require('./models/reception.model');
 const Mouvement_Stock = require('./models/mouvement_stock.model');
 const Produit = require('./models/produit.model');
 const Categorie = require('./models/categorie.model');
-const Fournisseur = require('./models/Fournisseur.model');
+const Fournisseur = require('./models/fournisseur.model');
 const Detail_Reception = require('./models/detail_reception.model');
 const Details_Commande = require('./models/details_commande.model');
 const Produit_fournisseurs = require('./models/produit_fournisseurs.model');
@@ -34,6 +34,7 @@ app.use(express.urlencoded({ extended: true }));//Middleware pour parser les don
 //Routes d'API
 app.use('/api/auth', authRoutes);
 app.use('/api/users', usersRoutes);
+app.use('/api/fournisseurs', fournisseursRoutes);
 
 
 
