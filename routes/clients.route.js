@@ -1,8 +1,8 @@
 const express = require('express');
 const router = express.Router();
 const ClientController = require('../controllers/clients.controller');
-const checkAuth = require('../middleware/check-auth');
-const checkRole = require('../middleware/check-role');
+const checkRole  = require('../middleware/role.middleware');
+const { checkAuth } = require('../middleware/auth.middleware');
 
 // Routes pour les clients
 router.get('/', ClientController.getAllClients);

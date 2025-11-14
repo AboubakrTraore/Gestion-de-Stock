@@ -1,8 +1,8 @@
 const express = require('express');
 const router = express.Router();
 const FournisseurController = require('../controllers/fournisseurs.controller');
-const checkAuth = require('../middleware/check-auth');
-const checkRole = require('../middleware/check-role');
+const checkRole  = require('../middleware/role.middleware');
+const { checkAuth } = require('../middleware/auth.middleware');
 
 // Routes pour les fournisseurs
 router.get('/', FournisseurController.getAllFournisseurs);
