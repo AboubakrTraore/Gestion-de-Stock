@@ -18,6 +18,8 @@ const Client = require('./models/client.model');
 const { definirAssociations } = require('./models/relation.model');
 const authRoutes = require('./routes/auth.route');
 const usersRoutes = require('./routes/users.route');
+const clientsRoutes = require('./routes/clients.route');
+const fournisseursRoutes = require('./routes/fournisseurs.route');
 
 dotenv.config();
 
@@ -35,6 +37,7 @@ app.use(express.urlencoded({ extended: true }));//Middleware pour parser les don
 app.use('/api/auth', authRoutes);
 app.use('/api/users', usersRoutes);
 app.use('/api/fournisseurs', fournisseursRoutes);
+app.use('/api/clients', clientsRoutes);
 
 
 
