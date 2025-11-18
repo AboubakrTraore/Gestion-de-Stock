@@ -23,12 +23,26 @@ const Client = db.define('Client', {
     email: {
         type: DataTypes.STRING,
         allowNull: true,
+        unique: true,
         validate: {
             isEmail: true,
         },
     },
     address: {
         type: DataTypes.TEXT,
+        allowNull: true,
+    },
+    is_deleted: {
+        type: DataTypes.BOOLEAN,
+        allowNull: false,
+        defaultValue: false,
+    },
+    created_by: {
+        type: DataTypes.UUID,
+        allowNull: true,
+    },
+    updated_by: {
+        type: DataTypes.UUID,
         allowNull: true,
     }
 },

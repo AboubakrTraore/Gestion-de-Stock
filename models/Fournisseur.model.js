@@ -23,6 +23,7 @@ const Fournisseur = db.define('Fournisseur', {
     email: {
         type: DataTypes.STRING,
         allowNull: true,
+        unique: true,
         validate: {
             isEmail: true,
         },
@@ -30,7 +31,20 @@ const Fournisseur = db.define('Fournisseur', {
     address: {
         type: DataTypes.TEXT,
         allowNull: false,
-    }  
+    },
+    is_deleted: {
+        type: DataTypes.BOOLEAN,
+        allowNull: false,
+        defaultValue: false,
+    },
+    created_by: {
+        type: DataTypes.UUID,
+        allowNull: true,
+    },
+    updated_by: {
+        type: DataTypes.UUID,
+        allowNull: true,
+    }
 },
 {
     tableName: 'fournisseurs',

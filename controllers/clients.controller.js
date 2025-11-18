@@ -35,8 +35,9 @@ class ClientController {
     static createClient = async (req, res) => {
         const { name, email, tel, adresse } = req.body;
         try {
-            const client = await Client.create({ name,email, tel, adresse });
-            return res.status(201).json(client);
+            const client = await Client.create({ name,email, tel, adresse, created_by: req.user.id })
+            res.status(201).json({ message: 'Client créé avec succès', client });
+            
         } catch (error) {
             console.error('Erreur lors de la création du client :', error);
             res.status(500).json({ error: error.message });

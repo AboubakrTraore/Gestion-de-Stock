@@ -5,7 +5,7 @@ const reception = require('./reception.model');
 const mouvement_stock = require('./mouvement_stock.model');
 const produit = require('./produit.model');
 const categorie = require('./categorie.model');
-const fournisseur = require('./Fournisseur.model');
+const Fournisseur = require('./fournisseur.model');
 const detail_reception = require('./detail_reception.model');
 const Details_Commande = require('./details_commande.model');
 const produit_fournisseurs = require('./produit_fournisseurs.model');
@@ -18,7 +18,7 @@ const db = {
     Mouvement_Stock: mouvement_stock,
     Produit: produit,
     Categorie: categorie,
-    Fournisseur: fournisseur,
+    Fournisseur: Fournisseur,
     Detail_Reception: detail_reception,
     Details_Commande: Details_Commande,
     Produit_fournisseurs: produit_fournisseurs,
@@ -27,6 +27,14 @@ const db = {
 
 function definirAssociations(models) {
     const m = models || db;
+
+    // --- Liaisons User ---
+
+    // Traçabilité User
+    m.User.hasMany(m.User, { foreignKey: 'created_by', as: 'CreatedUsers' });
+    m.User.hasMany(m.User, { foreignKey: 'updated_by', as: 'UpdatedUsers' });
+    m.User.belongsTo(m.User, { foreignKey: 'created_by', as: 'createdByUser' });
+    m.User.belongsTo(m.User, { foreignKey: 'updated_by', as: 'updatedByUser' });
 
     // User (1) -> (N) Commandes
     m.User.hasMany(m.Commande, { foreignKey: 'user_id' });
@@ -43,8 +51,8 @@ function definirAssociations(models) {
     // Traçabilité Produit
     m.User.hasMany(m.Produit, { foreignKey: 'created_by', as: 'ProduitsCrees' });
     m.User.hasMany(m.Produit, { foreignKey: 'updated_by', as: 'ProduitsModifies' });
-    m.Produit.belongsTo(m.User, { foreignKey: 'created_by', as: 'Createur' });
-    m.Produit.belongsTo(m.User, { foreignKey: 'updated_by', as: 'Modificateur' });
+    m.Produit.belongsTo(m.User, { foreignKey: 'created_by', as: 'createdByUser' });
+    m.Produit.belongsTo(m.User, { foreignKey: 'updated_by', as: 'updatedByUser' });
 
     // Client (1) -> (N) Commandes
     m.Client.hasMany(m.Commande, { foreignKey: 'client_id', onDelete: 'SET NULL' });

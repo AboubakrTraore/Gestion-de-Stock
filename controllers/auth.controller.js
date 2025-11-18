@@ -19,10 +19,14 @@ class AuthController {
             if (!isMatch) {
                 return res.status(401).json({ message: 'Mot de passe incorrect' });
             }
-            // Génération du token JWT
+            
+            //Supprimer le mot de passe de la réponse
+            const UserResponse = user.toJSON();
+            delete UserResponse.password;
+            console.log("L'utilisateur a été trouvé avec succès:", UserResponse);
             
             // Création du Token JWT
-            const token = jwt.sign({ id: user.id }, JWT_SECRET, {
+            const token = jwt.sign({ id: user.id, role: user.role }, JWT_SECRET, {
                 expiresIn: 3600 // 1 heure
             });
 

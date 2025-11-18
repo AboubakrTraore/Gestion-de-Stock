@@ -1,7 +1,30 @@
-const express = require('express');
 const User = require('../models/user.model');
 const Op = require('sequelize').Op;
 const bcrypt = require('bcryptjs');
+
+const auditInclude = [
+    { model: User, as: 'createdByUser', attributes: ['id', 'username'], required: false },
+    { model: User, as: 'updatedByUser', attributes: ['id', 'username'], required: false },
+];
+
+const formatUserResponse = (userInstance) => {
+    if (!userInstance) return null;
+    const data = userInstance.toJSON();
+
+    data.created_by = data.createdByUser
+        ? { id: data.createdByUser.id, username: data.createdByUser.username }
+        : data.created_by;
+
+    data.updated_by = data.updatedByUser
+        ? { id: data.updatedByUser.id, username: data.updatedByUser.username }
+        : data.updated_by;
+
+    delete data.createdByUser;
+    delete data.updatedByUser;
+    delete data.password;
+
+    return data;
+};
 
 
 class UserController {
@@ -11,14 +34,16 @@ class UserController {
     
         try {
             const users = await User.findAll({ 
-                // Exclure le mot de passe dans la réponse
-                attributes: { exclude: ['password'] } 
+                attributes: { exclude: ['password'] },
+                include: auditInclude,
             });
+
+            const formattedUsers = users.map(formatUserResponse);
             
             if (users.length === 0) {
                 return res.status(404).json({ message: 'Aucun utilisateur trouvé' });
             }
-            return res.status(200).json(users);
+            return res.status(200).json(formattedUsers);
         } catch (error) {
             console.error('Erreur lors de la récupération des utilisateurs :', error);
             res.status(500).json({ error: error.message });
@@ -31,14 +56,16 @@ class UserController {
         try {
         
             const user = await User.findByPk(userId, {
-                // Exclure le mot de passe
-                attributes: { exclude: ['password'] } 
-            }); 
-            
+                attributes: { exclude: ['password'] },
+                include: auditInclude,
+            });
+
             if (!user) {
                 return res.status(404).json({ message: 'Utilisateur non trouvé' });
             }
-            return res.status(200).json(user);
+
+            console.log('L\'Utilisateur a été trouvé avec succès');
+            return res.status(200).json(formatUserResponse(user));
         } catch (error) {
             console.error('Erreur lors de la récupération de l\'utilisateur :', error);
             res.status(500).json({ error: error.message });

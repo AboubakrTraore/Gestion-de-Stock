@@ -5,7 +5,7 @@ const reception = require('./reception.model');
 const mouvement_stock = require('./mouvement_stock.model');
 const produit = require('./produit.model');
 const categorie = require('./categorie.model');
-const fournisseur = require('./Fournisseur.model');
+const Fournisseur = require('./fournisseur.model');
 const detail_reception = require('./detail_reception.model');
 const Details_Commande = require('./details_commande.model');
 const produit_fournisseurs = require('./produit_fournisseurs.model');
@@ -18,7 +18,7 @@ const db = {
     Mouvement_Stock: mouvement_stock,
     Produit: produit,
     Categorie: categorie,
-    Fournisseur: fournisseur,
+    Fournisseur: Fournisseur,
     Detail_Reception: detail_reception,
     Details_Commande: Details_Commande,
     Produit_fournisseurs: produit_fournisseurs,
@@ -29,6 +29,14 @@ function definirAssociations(db) {
 
     // --- 1. Pôle Acteurs ---
   
+    // --- Liaisons User ---
+
+    // Traçabilité User (self-reference)
+    db.User.hasMany(db.User, { foreignKey: 'created_by', as: 'CreatedUsers' });
+    db.User.hasMany(db.User, { foreignKey: 'updated_by', as: 'UpdatedUsers' });
+    db.User.belongsTo(db.User, { foreignKey: 'created_by', as: 'createdByUser' });
+    db.User.belongsTo(db.User, { foreignKey: 'updated_by', as: 'updatedByUser' });
+
     // User (1) -> (N) Commandes
     db.User.hasMany(db.Commande, { foreignKey: 'user_id' });
     db.Commande.belongsTo(db.User, { foreignKey: 'user_id' });
@@ -44,8 +52,8 @@ function definirAssociations(db) {
     // User (1) -> (N) Produits (Traçabilité)
     db.User.hasMany(db.Produit, { foreignKey: 'created_by', as: 'ProduitsCrees' });
     db.User.hasMany(db.Produit, { foreignKey: 'updated_by', as: 'ProduitsModifies' });
-    db.Produit.belongsTo(db.User, { foreignKey: 'created_by', as: 'Createur' });
-    db.Produit.belongsTo(db.User, { foreignKey: 'updated_by', as: 'Modificateur' });
+    db.Produit.belongsTo(db.User, { foreignKey: 'created_by', as: 'createdByUser' });
+    db.Produit.belongsTo(db.User, { foreignKey: 'updated_by', as: 'updatedByUser' });
   
     // Client (1) -> (N) Commandes
     db.Client.hasMany(db.Commande, { 

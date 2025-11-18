@@ -1,3 +1,4 @@
+const express = require('express');
 const Fournisseur = require('../models/fournisseur.model');
 
 class FournisseurController {
