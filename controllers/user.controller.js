@@ -7,6 +7,39 @@ const auditInclude = [
     { model: User, as: 'updatedByUser', attributes: ['id', 'username'], required: false },
 ];
 
+
+//
+const formatSequelizeErrors = (error) => {
+    if (error?.errors?.length) {
+        return error.errors.map(({ path, message, validatorKey }) => ({
+            field: path,
+            message,
+            code: validatorKey,
+        }));
+    }
+    return [{ message: error?.message || 'Erreur inconnue' }];
+};
+
+const sendSuccessResponse = (res, statusCode, message, data = null) => {
+    return res.status(statusCode).json({ message, data });
+};
+
+const sendErrorResponse = (res, error, defaultMessage) => {
+    const needsDetails = ['SequelizeValidationError', 'SequelizeUniqueConstraintError'].includes(error?.name);
+    const statusCode = needsDetails ? 400 : 500;
+    const payload = {
+        message: defaultMessage,
+    };
+
+    if (needsDetails) {
+        payload.details = formatSequelizeErrors(error);
+    } else {
+        payload.error = error?.message;
+    }
+
+    return res.status(statusCode).json(payload);
+};
+
 const formatUserResponse = (userInstance) => {
     if (!userInstance) return null;
     const data = userInstance.toJSON();
@@ -37,16 +70,15 @@ class UserController {
                 attributes: { exclude: ['password'] },
                 include: auditInclude,
             });
-
-            const formattedUsers = users.map(formatUserResponse);
             
             if (users.length === 0) {
-                return res.status(404).json({ message: 'Aucun utilisateur trouvé' });
+                return sendSuccessResponse(res, 200, 'Aucun utilisateur trouvé', []);
             }
-            return res.status(200).json(formattedUsers);
+            return sendSuccessResponse(res, 200, 'Utilisateurs récupérés avec succès', users.map(formatUserResponse));
+           
         } catch (error) {
             console.error('Erreur lors de la récupération des utilisateurs :', error);
-            res.status(500).json({ error: error.message });
+            return sendErrorResponse(res, error, 'Erreur lors de la récupération des utilisateurs');
         }
     }
 
@@ -61,14 +93,13 @@ class UserController {
             });
 
             if (!user) {
-                return res.status(404).json({ message: 'Utilisateur non trouvé' });
+                return res.status(404).json({ message: 'Utilisateur non trouvé', data: null });
             }
 
-            console.log('L\'Utilisateur a été trouvé avec succès');
-            return res.status(200).json(formatUserResponse(user));
+            return sendSuccessResponse(res, 200, 'Utilisateur trouvé avec succès', formatUserResponse(user));
         } catch (error) {
             console.error('Erreur lors de la récupération de l\'utilisateur :', error);
-            res.status(500).json({ error: error.message });
+            return sendErrorResponse(res, error, 'Erreur lors de la récupération de l\'utilisateur');
         }
     }
 
@@ -101,12 +132,11 @@ class UserController {
             //Supprimer le mot de passe de la réponse
             const UserResponse = user.toJSON();
             delete UserResponse.password;
-            console.log('L\'Utilisateur a été créé avec succès')
-            return res.status(201).json(UserResponse);
+            return sendSuccessResponse(res, 201, 'Utilisateur créé avec succès', UserResponse);
 
         } catch (error) {
             console.error('Erreur lors de la création de l\'utilisateur :', error);
-            res.status(500).json({ error: error.message });
+            return sendErrorResponse(res, error, 'Erreur lors de la création de l\'utilisateur');
         }
     }
 
@@ -134,28 +164,32 @@ class UserController {
             //Supprimer le mot de passe de la réponse
             const UserResponse = user.toJSON();
             delete UserResponse.password;
-            console.log('L\'Utilisateur a été mis à jour avec succès')
-            return res.status(200).json(UserResponse);
+            return sendSuccessResponse(res, 200, 'Utilisateur mis à jour avec succès', UserResponse);
         } catch (error) {
             console.error('Erreur lors de la mise à jour de l\'utilisateur :', error);
-            res.status(500).json({ error: error.message });
+            return sendErrorResponse(res, error, 'Erreur lors de la mise à jour de l\'utilisateur');
         }
 
     }
     //Fonction pour supprimer un utilisateur (DELETE /api/users/:id)
      static deleteUser = async (req, res) => {
-        const userId = req.params.id;
+        const userId = parseInt(req.params.id, 10);
+        const currentUserId = req.user.id;
+
+        //Blocage de l'auto-suppression
+        if (userId === currentUserId) {
+            return res.status(400).json({ message: 'Vous ne pouvez pas supprimer votre propre compte' });
+        }
         try {
             const user = await User.findByPk(userId);
             if (!user) {
                 return res.status(404).json({ message: 'Utilisateur non trouvé' });
             }
             await user.destroy();
-            console.log('L\'Utilisateur a été supprimé avec succès')
-            return res.status(200).json({ message: 'Utilisateur supprimé avec succès' });
+            return sendSuccessResponse(res, 200, 'Utilisateur supprimé avec succès', { id: userId });
         } catch (error) {
             console.error('Erreur lors de la suppression de l\'utilisateur :', error);
-            res.status(500).json({ error: error.message });
+            return sendErrorResponse(res, error, 'Erreur lors de la suppression de l\'utilisateur');
         }   
     }
 }

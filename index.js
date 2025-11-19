@@ -15,12 +15,12 @@ const Detail_Reception = require('./models/detail_reception.model');
 const Details_Commande = require('./models/details_commande.model');
 const Produit_fournisseurs = require('./models/produit_fournisseurs.model');
 const Client = require('./models/client.model');
-const { definirAssociations } = require('./models/relation');
+const { definirAssociations } = require('./models/relation.model');
 const authRoutes = require('./routes/auth.route');
 const usersRoutes = require('./routes/users.route');
 const clientsRoutes = require('./routes/clients.route');
 const fournisseursRoutes = require('./routes/fournisseurs.route');
-
+const categoriesRoutes = require('./routes/categories.route');
 dotenv.config();
 
 //Initialisation de l'application Express
@@ -38,6 +38,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/users', usersRoutes);
 app.use('/api/fournisseurs', fournisseursRoutes);
 app.use('/api/clients', clientsRoutes);
+app.use('/api/categories', categoriesRoutes);
 
 
 
