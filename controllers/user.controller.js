@@ -108,6 +108,7 @@ class UserController {
         const { username, email, password, tel, role } = req.body;
         
 
+        //Vérification du rôle
         let userrole = role;
         
         if (role && role.toLowerCase() === 'admin') {
@@ -115,6 +116,24 @@ class UserController {
         } else {
             userrole = 'employé';
         }
+
+        //Vérification des champs obligatoires
+        if (!username || !email || !password || !tel) {
+            return res.status(400).json({ message: 'Champs obligatoires manquants : username, email, password, tel' });
+        }
+        //  Vérification de l'email
+        const existingUser = await User.findOne({ where: { email } });
+        if (existingUser) {
+            return res.status(400).json({ message: 'L\'email est déjà utilisé' });
+        }
+
+        //Vérification du téléphone
+        const existingTel = await User.findOne({ where: { tel } });
+        if (existingTel) {
+            return res.status(400).json({ message: 'Le numéro de téléphone est déjà utilisé' });
+        }   
+
+        
         //hasher le mot de passe
         const hashedPassword = await bcrypt.hash(password, 10);
 
@@ -149,6 +168,46 @@ class UserController {
             if (!user) {
                 return res.status(404).json({ message: 'Utilisateur non trouvé' });
             }
+
+            //Vérification du rôle
+            let userrole = user.role; // Rôle actuel par défaut
+            if (role) {
+                if (role.toLowerCase() === 'admin') {
+                    userrole = 'admin';
+                } else {
+                    userrole = 'employé';
+                }
+            }   
+
+            //Vérification de l'email s'il est modifié
+            if (email && email !== user.email) {
+                const existingUser = await User.findOne({ where: { email, id: { [Op.ne]: userId } } });
+                if (existingUser) {
+                    return res.status(400).json({ message: 'L\'email est déjà utilisé' });
+                }
+            }
+            //Vérification du téléphone s'il est modifié
+            if (tel && tel !== user.tel) {
+                const existingTel = await User.findOne({ where: { tel, id: { [Op.ne]: userId } } });
+                if (existingTel) {
+                    return res.status(400).json({ message: 'Le numéro de téléphone est déjà utilisé' });
+                }
+            }
+
+            //Blocage de la modification du propre rôle
+            if (parseInt(userId, 10) === req.user.id && role && role.toLowerCase() !== user.role) {
+                return res.status(400).json({ message: 'Vous ne pouvez pas modifier votre propre rôle' });
+            }
+
+            // 2. Restriction : Blocage de la rétrogradation du dernier Admin
+           // On vérifie seulement si un changement de rôle est demandé ET que l'utilisateur cible est un admin
+            if (role && user.role === 'admin' && role.toLowerCase() !== 'admin') {
+                const adminCount = await User.count({ where: { role: 'admin' } });
+                if (adminCount <= 1) {
+                    return res.status(400).json({ message: 'Impossible de rétrograder le dernier administrateur.' });
+                }
+            }
+
             // Mettre à jour les champs si fournis
             if (username) user.username = username;
             if (email) user.email = email;
@@ -164,6 +223,7 @@ class UserController {
             //Supprimer le mot de passe de la réponse
             const UserResponse = user.toJSON();
             delete UserResponse.password;
+            // Utilisateur mis à jour avec succès
             return sendSuccessResponse(res, 200, 'Utilisateur mis à jour avec succès', UserResponse);
         } catch (error) {
             console.error('Erreur lors de la mise à jour de l\'utilisateur :', error);

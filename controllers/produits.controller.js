@@ -15,6 +15,46 @@ class ProduitController {
             res.status(500).json({ error: error.message });
         }
     }
+    
+    //Recherche de produits par nom ou description (GET /api/produits/search?query=...)
+    static searchProduits = async (req, res) => {
+        const query = req.query.query;
+        try {
+            const produits = await Produit.findAll({
+                where: {
+                    [Op.or]: [
+                        { name: { [Op.iLike]: `%${query}%` } },
+                        { description: { [Op.iLike]: `%${query}%` } }
+                    ]
+                }
+            });
+            if (produits.length === 0) {
+                return res.status(404).json({ message: 'Aucun produit trouvé pour la recherche donnée' });
+            }
+            return res.status(200).json(produits);
+        } catch (error) {
+            res.json({ message: 'Erreur lors de la recherche des produits', error: error.message });
+            res.status(500).json({ error: error.message });
+        }
+    }
+    
+    //Filtre des produits par catégorie (GET /api/produits/filter?categorie_id=...)
+    static filterProduitsByCategorie = async (req, res) => {
+        const categorieId = req.query.categorie_id;
+        try {
+            const produits = await Produit.findAll({
+                where: { categorie_id: categorieId }
+            }); 
+            if (produits.length === 0) {
+                return res.status(404).json({ message: 'Aucun produit trouvé pour cette catégorie' });
+            }
+            return res.status(200).json(produits);
+        } catch (error) {
+            res.json({ message: 'Erreur lors du filtrage des produits par catégorie', error: error.message });
+            res.status(500).json({ error: error.message });
+        }
+    }
+
     // Fonction pour récupérer un produit par son id (GET /api/produits/:id)
     static getProduitById = async (req, res) => {
         const produitId = req.params.id;

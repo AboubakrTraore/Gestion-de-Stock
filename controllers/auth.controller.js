@@ -59,8 +59,6 @@ class AuthController {
                     return res.status(401).json({ message: 'Token invalide ou expiré' });
                 }
             });
-            // Déconnexion de l'utilisateur
-            return res.status(200).json({ message: 'Déconnexion réussie' });
         } catch (error) {
             console.error('Erreur lors de la déconnexion :', error);
             res.status(500).json({ message: 'Erreur lors de la déconnexion', error: error.message });

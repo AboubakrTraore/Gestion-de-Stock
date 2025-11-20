@@ -21,6 +21,8 @@ const usersRoutes = require('./routes/users.route');
 const clientsRoutes = require('./routes/clients.route');
 const fournisseursRoutes = require('./routes/fournisseurs.route');
 const categoriesRoutes = require('./routes/categories.route');
+const produitsRoutes = require('./routes/produits.routes');
+
 dotenv.config();
 
 //Initialisation de l'application Express
@@ -39,6 +41,7 @@ app.use('/api/users', usersRoutes);
 app.use('/api/fournisseurs', fournisseursRoutes);
 app.use('/api/clients', clientsRoutes);
 app.use('/api/categories', categoriesRoutes);
+
 
 
 
