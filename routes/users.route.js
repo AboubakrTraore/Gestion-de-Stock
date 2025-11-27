@@ -3,6 +3,7 @@ const router = express.Router();
 const User = require('../controllers/user.controller');
 const checkRole  = require('../middleware/role.middleware');
 const { checkAuth } = require('../middleware/auth.middleware');
+const { validateCreateUser, validateUpdateUser } = require('../validations/user.validations');
 
 //Routes pour les utilisateurs
 router.get('/',checkAuth, checkRole('admin'),User.getAllUsers);

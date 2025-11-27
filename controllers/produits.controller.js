@@ -116,5 +116,23 @@ class ProduitController {
             res.status(500).json({ error: error.message });
         }
     }
+
+    //Afficher les détails d'un produit (GET /api/produits/:id/details)
+    static getProduitDetails = async (req, res) => {
+        const produitId = req.params.id;
+        try {
+            const produit = await Produit.findByPk(produitId, {
+                include: ['categorie', 'createdByUser', 'updatedByUser']
+            });
+            if (!produit) {
+                return res.status(404).json({ message: 'Produit non trouvé' });
+            }
+            return res.status(200).json(produit);
+        }
+        catch (error) {
+            console.error('Erreur lors de la récupération des détails du produit :', error);
+            res.status(500).json({ error: error.message });
+        }
+    }
 }
 module.exports = ProduitController;

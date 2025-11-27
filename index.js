@@ -23,6 +23,7 @@ const fournisseursRoutes = require('./routes/fournisseurs.route');
 const categoriesRoutes = require('./routes/categories.route');
 const produitsRoutes = require('./routes/produits.routes');
 
+
 dotenv.config();
 
 //Initialisation de l'application Express
