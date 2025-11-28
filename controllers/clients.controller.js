@@ -31,7 +31,7 @@ class ClientController {
             if (clients.length === 0) {
                 return res.status(404).json({ message: 'Aucun client trouvé' });
             }
-             return sendSuccessResponse(res, 200, 'Utilisateurs récupérés avec succès', clients.map(formatClientResponse));
+             return sendSuccessResponse(res, 200, 'Clients récupérés avec succès', clients.map(formatClientResponse));
         } catch (error) {
             console.error('Erreur lors de la récupération des clients :', error);
             res.status(500).json({ error: error.message });
@@ -57,7 +57,12 @@ class ClientController {
     static createClient = async (req, res) => {
         const { name, email, tel, adresse } = req.body;
         try {
-            const client = await Client.create({ name,email, tel, adresse, created_by: req.user.id })
+            const client = await Client.create({ 
+                name: name,
+                email: email, 
+                tel: tel, 
+                address: adresse, 
+                created_by: req.user.id })
             return sendSuccessResponse(res, 201, 'Client créé avec succès', formatClientResponse(client));
             
         } catch (error) {

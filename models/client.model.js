@@ -30,7 +30,7 @@ const Client = db.define('Client', {
     },
     address: {
         type: DataTypes.TEXT,
-        allowNull: true,
+        allowNull: false,
     },
     is_deleted: {
         type: DataTypes.BOOLEAN,
