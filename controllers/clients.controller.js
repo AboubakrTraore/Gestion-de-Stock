@@ -1,6 +1,28 @@
 const Client = require('../models/client.model');
 const { Op } = require('sequelize');
 
+// Formatage de la réponse client
+const formatClientResponse = (clientInstance) => {
+    if (!clientInstance) return null;
+    const data = clientInstance.toJSON();
+    return {
+        id: data.id,
+        name: data.name,
+        email: data.email,
+        tel: data.tel,
+        adresse: data.adresse
+    };
+}
+
+// Fonction pour envoyer une réponse standardisée
+const sendSuccessResponse = (res, statusCode, message, data) => {
+    return res.status(statusCode).json({
+        message,
+        data
+    });
+}
+
+
 class ClientController {
     // Fonction pour lister tous les clients (GET /api/clients)
     static getAllClients = async (req, res) => {
@@ -9,7 +31,7 @@ class ClientController {
             if (clients.length === 0) {
                 return res.status(404).json({ message: 'Aucun client trouvé' });
             }
-            return res.status(200).json(clients);
+             return sendSuccessResponse(res, 200, 'Utilisateurs récupérés avec succès', clients.map(formatClientResponse));
         } catch (error) {
             console.error('Erreur lors de la récupération des clients :', error);
             res.status(500).json({ error: error.message });
@@ -24,7 +46,7 @@ class ClientController {
             if (!client) {
                 return res.status(404).json({ message: 'Client non trouvé' });
             }
-            return res.status(200).json(client);
+            return sendSuccessResponse(res, 200, 'Client récupéré avec succès', formatClientResponse(client));
         } catch (error) {
             console.error('Erreur lors de la récupération du client :', error);
             res.status(500).json({ error: error.message });
@@ -36,7 +58,7 @@ class ClientController {
         const { name, email, tel, adresse } = req.body;
         try {
             const client = await Client.create({ name,email, tel, adresse, created_by: req.user.id })
-            res.status(201).json({ message: 'Client créé avec succès', client });
+            return sendSuccessResponse(res, 201, 'Client créé avec succès', formatClientResponse(client));
             
         } catch (error) {
             console.error('Erreur lors de la création du client :', error);
@@ -54,7 +76,7 @@ class ClientController {
                 return res.status(404).json({ message: 'Client non trouvé' });
             }
             await client.update({ name, email, tel, adresse });
-            return res.status(200).json(client);
+            return sendSuccessResponse(res, 200, 'Client mis à jour avec succès', formatClientResponse(client));
         } catch (error) {
             console.error('Erreur lors de la mise à jour du client :', error);
             res.status(500).json({ error: error.message });
@@ -78,5 +100,6 @@ class ClientController {
     }
     
 }
+
 
 module.exports = ClientController;

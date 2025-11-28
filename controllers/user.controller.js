@@ -2,13 +2,14 @@ const User = require('../models/user.model');
 const Op = require('sequelize').Op;
 const bcrypt = require('bcryptjs');
 
+// Inclure les informations de traçabilité (created_by, updated_by)
 const auditInclude = [
     { model: User, as: 'createdByUser', attributes: ['id', 'username'], required: false },
     { model: User, as: 'updatedByUser', attributes: ['id', 'username'], required: false },
 ];
 
 
-//
+// Fonction utilitaire pour formater les erreurs Sequelize
 const formatSequelizeErrors = (error) => {
     if (error?.errors?.length) {
         return error.errors.map(({ path, message, validatorKey }) => ({
@@ -24,6 +25,7 @@ const sendSuccessResponse = (res, statusCode, message, data = null) => {
     return res.status(statusCode).json({ message, data });
 };
 
+// Gestion des erreurs Sequelize et autres
 const sendErrorResponse = (res, error, defaultMessage) => {
     const needsDetails = ['SequelizeValidationError', 'SequelizeUniqueConstraintError'].includes(error?.name);
     const statusCode = needsDetails ? 400 : 500;
@@ -40,6 +42,7 @@ const sendErrorResponse = (res, error, defaultMessage) => {
     return res.status(statusCode).json(payload);
 };
 
+// Formatage de la réponse utilisateur pour inclure les informations de traçabilité
 const formatUserResponse = (userInstance) => {
     if (!userInstance) return null;
     const data = userInstance.toJSON();
@@ -233,7 +236,7 @@ class UserController {
     }
     //Fonction pour supprimer un utilisateur (DELETE /api/users/:id)
      static deleteUser = async (req, res) => {
-        const userId = parseInt(req.params.id, 10);
+        const userId = req.params.id;
         const currentUserId = req.user.id;
 
         //Blocage de l'auto-suppression
