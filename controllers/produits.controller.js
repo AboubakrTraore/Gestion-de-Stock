@@ -74,6 +74,18 @@ class ProduitController {
     static createProduit = async (req, res) => {
         const { name, description, Prix_vente, quantite_stock, categorie_id } = req.body;
         try {
+            //Vérification si le produit existe déjà
+            const exist = await Produit.findOne({ where: { name: { [Op.iLike]: name } } });
+            if(exist){
+                return res.status(400).json({ message: 'Un produit avec ce nom existe déjà.' });
+            }
+
+            //Vérification des champs obligatoires
+            if(!name || !Prix_vente || !quantite_stock || !categorie_id){
+                return res.status(400).json({ message: 'Veuillez remplir tous les champs obligatoires.' });
+            }
+            
+
             const produit = await Produit.create({ name, description, Prix_vente, quantite_stock, categorie_id, created_by: req.user.id });
             return res.status(201).json(produit);
         }

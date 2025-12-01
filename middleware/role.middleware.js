@@ -36,9 +36,7 @@ const checkRole = (...allowedRoles) => {
             });
         }
 
-        // --- CORRECTION APPLIQUÉE ICI ---
-        // 1. Aplatir le tableau allowedRoles pour s'assurer qu'il ne contient que des chaînes de caractères.
-        //    Cela gère les cas où il est appelé comme : checkRole(['Admin', 'User'])
+        // 1. Aplatir le tableau des rôles autorisés
         const flatAllowedRoles = allowedRoles.flat();
         
         // 2. Conversion en minuscules pour comparaison insensible à la casse

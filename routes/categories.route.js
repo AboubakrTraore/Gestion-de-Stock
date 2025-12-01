@@ -5,10 +5,10 @@ const checkRole  = require('../middleware/role.middleware');
 const { checkAuth } = require('../middleware/auth.middleware');
 
 // Routes pour les catégories
-router.get('/', CategorieController.getAllCategories);
+router.get('/', checkAuth, checkRole('admin', 'employé'),CategorieController.getAllCategories);
 router.get('/:id', CategorieController.getCategoryById);
-router.post('/', CategorieController.createCategory);
-router.put('/:id', CategorieController.updateCategory);
-router.delete('/:id', CategorieController.deleteCategory);
+router.post('/', checkAuth, checkRole('admin', 'employé'),CategorieController.createCategory);
+router.put('/:id', checkAuth, checkRole('admin', 'employé'),CategorieController.updateCategory);
+router.delete('/:id', checkAuth, checkRole('admin', 'employé'), CategorieController.deleteCategory);
 
 module.exports = router;

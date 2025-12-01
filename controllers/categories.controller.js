@@ -2,6 +2,27 @@ const Categorie = require('../models/categorie.model');
 const { Op } = require('sequelize');
 
 
+// Formatage de la réponse client
+const formatCategorieResponse = (categorieInstance) => {
+    if (!categorieInstance) return null;
+    const data = categorieInstance.toJSON();
+    return {
+        id: data.id,
+        name: data.name,
+        description: data.description,
+        created_by: data.created_by,
+    };
+}
+
+// Fonction pour envoyer une réponse standardisée
+const sendSuccessResponse = (res, statusCode, message, data) => {
+    return res.status(statusCode).json({
+        message,
+        data
+    });
+}
+
+
 class CategorieController {
     // Fonction pour lister toutes les catégories (GET /api/categories)
     static getAllCategories = async (req, res) => {
@@ -10,7 +31,7 @@ class CategorieController {
             if (categories.length === 0) {
                 return res.status(404).json({ message: 'Aucune catégorie trouvée' });
             }
-            return res.status(200).json(categories);
+            return sendSuccessResponse(res, 200, 'Catégories récupérées avec succès', categories.map(formatCategorieResponse));
         } catch (error) {
             console.error('Erreur lors de la récupération des catégories :', error);
             res.status(500).json({ error: error.message });
@@ -24,7 +45,7 @@ class CategorieController {
             if (!category) {
                 return res.status(404).json({ message: 'Catégorie non trouvée' });
             }
-            return res.status(200).json(category);
+            return sendSuccessResponse(res, 200, 'Catégorie récupérée avec succès', formatCategorieResponse(category));
         }
         
         catch (error) {
@@ -36,8 +57,23 @@ class CategorieController {
     static createCategory = async (req, res) => {
         const { name, description } = req.body;
         try {
-            const category = await Categorie.create({ name, description, created_by: req.user.id });
-            return res.status(201).json(category);
+            const exist = await Categorie.findOne({ where: { name: { [Op.iLike]: name } } });
+
+            if(exist){
+                return res.status(400).json({ message: 'Une catégorie avec ce nom existe déjà.' });
+            }
+
+            //Vérification des champs obligatoire
+            if (!name || !description) {  
+                return res.status(400).json({ message: 'Tous les champs sont obligatoires' });
+            }
+
+            // Création de la catégorie
+            const category = await Categorie.create({ 
+                name: name,
+                description: description,
+                created_by: req.user.id });
+            return sendSuccessResponse(res, 201, 'Catégorie créée avec succès', formatCategorieResponse(category));
         } catch (error) {
             console.error('Erreur lors de la création de la catégorie :', error);
             res.status(500).json({ error: error.message });
@@ -54,7 +90,7 @@ class CategorieController {
                 return res.status(404).json({ message: 'Catégorie non trouvée' });
             }
             await category.update({ name, description });
-            return res.status(200).json(category);
+            return sendSuccessResponse(res, 200, 'Catégorie mise à jour avec succès', formatCategorieResponse(category));
         }
         catch (error) {
             console.error('Erreur lors de la mise à jour de la catégorie :', error);
@@ -71,7 +107,7 @@ class CategorieController {
                 return res.status(404).json({ message: 'Catégorie non trouvée' });
             }
             await category.destroy();
-            return res.status(200).json({ message: 'Catégorie supprimée avec succès' });
+            return sendSuccessResponse(res, 200, 'Catégorie supprimée avec succès', null);
         }
         catch (error) {
             console.error('Erreur lors de la suppression de la catégorie :', error);

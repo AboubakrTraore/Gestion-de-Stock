@@ -36,6 +36,13 @@ class FournisseurController {
     static createFournisseur = async (req, res) => {
         const { name, email, tel, address } = req.body;
         try {
+
+            //Vérification des champs obligatoire
+            if (!name || !email || !tel || !address) {  
+                return res.status(400).json({ message: 'Tous les champs sont obligatoires' });
+            }
+
+            // Création du fournisseur
             const fournisseur = await Fournisseur.create({
                 name,
                 email,

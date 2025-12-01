@@ -57,6 +57,12 @@ class ClientController {
     static createClient = async (req, res) => {
         const { name, email, tel, adresse } = req.body;
         try {
+
+            //Vérification des champs obligatoire
+            if (!name || !email || !tel || !adresse) {  
+                return res.status(400).json({ message: 'Tous les champs sont obligatoires' });
+            }
+            
             const client = await Client.create({ 
                 name: name,
                 email: email, 
