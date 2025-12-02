@@ -1,24 +1,27 @@
-const commande = require('../models/commande.model');
+const Commande = require('../models/commande.model');
 const Details_Commande = require('../models/details_commande.model');
 const Produit = require('../models/produit.model');
 const db = require('../config/config');
+const { sendErrorResponse } = require('../utils/error.utils');
+const { sendSuccessResponse } = require('../utils/response.utils');
 
 class CommandeController {
     // Méthode pour créer une nouvelle commande
     static createCommande = async (req, res) => {
-        const { client_id, date_commande, statut, details } = req.body;
-        const currentUserId = req.user.id;
-
-        const t = await db.transaction();
-
+        let t;
         try {
-        //Création de la Commande Principale ---
+            const { client_id, date_commande, statut, details } = req.body;
+            const currentUserId = req.user.id;
+
+            t = await db.transaction();
+
+            //Création de la Commande Principale ---
             const newCommande = await Commande.create({
                 client_id,
                 date_commande,
                 statut: statut || 'en_attente', 
                 created_by: currentUserId,
-                updated_by: currentUserId
+        
             }, { transaction: t });
 
             const commandeId = newCommande.id;
@@ -63,10 +66,7 @@ class CommandeController {
             //Validation et Fin de la Transaction ---
             await t.commit(); 
             
-            return res.status(201).json({ 
-                message: 'Commande créée avec succès et stock mis à jour.', 
-                commande: newCommande 
-            });
+            return sendSuccessResponse(res, 201, 'Commande créée avec succès et stock mis à jour.', newCommande);
 
         } catch (error) {
             //Annulation de la transaction en cas d'erreur
@@ -78,17 +78,21 @@ class CommandeController {
             const isClientError = error.message.includes('Stock insuffisant') || error.message.includes('introuvable');
             const statusCode = isClientError ? 400 : 500;
 
-            res.status(statusCode).json({ 
-                message: 'Échec de la création de la commande.', 
-                error: error.message 
-            });
+            if (isClientError) {
+                return res.status(statusCode).json({ 
+                    message: 'Échec de la création de la commande.',
+                    error: error.message,
+                });
+            }
+
+            return sendErrorResponse(res, error, 'Erreur lors de la création de la commande');
         }
     }
     // Méthode pour récupérer une commande par ID   
     static getCommandeById = async (req, res) => {
         const commandeId = req.params.id;
         try {
-            const commandeData = await commande.findByPk(commandeId, {  
+            const commandeData = await Commande.findByPk(commandeId, {  
                 include: [
                     {
                         model: Details_Commande,
@@ -105,17 +109,17 @@ class CommandeController {
             if (!commandeData) {
                 return res.status(404).json({ message: 'Commande non trouvée' });
             }
-            return res.status(200).json(commandeData);
+            return sendSuccessResponse(res, 200, 'Commande récupérée avec succès', commandeData);
         } catch (error) {
             console.error('Erreur lors de la récupération de la commande :', error);
-            res.status(500).json({ error: error.message });
+            return sendErrorResponse(res, error, 'Erreur lors de la récupération de la commande');
         }   
     }
 
     // Méthode pour lister toutes les commandes
     static getAllCommandes = async (req, res) => {
         try {
-            const commandes = await commande.findAll({
+            const commandes = await Commande.findAll({
                 include: [
                     {
                         model: Details_Commande,
@@ -129,23 +133,24 @@ class CommandeController {
                     }
                 ]
             });
-            return res.status(200).json(commandes);
+            return sendSuccessResponse(res, 200, 'Commandes récupérées avec succès', commandes);
         } catch (error) {
             console.error('Erreur lors de la récupération des commandes :', error);
-            res.status(500).json({ error: error.message });
+            return sendErrorResponse(res, error, 'Erreur lors de la récupération des commandes');
         }   
     }
 
     
    // Méthode pour mettre à jour une commande existante
     static updateCommande = async (req, res) => {
-        const commandeId = req.params.id;
-        const { client_id, date_commande, statut, details } = req.body; // 'details' est le nouveau tableau de lignes
-        const currentUserId = req.user.id;
-
-        const t = await db.transaction(); // Démarrer la transaction
-
+        let t;
         try {
+            const commandeId = req.params.id;
+            const { client_id, date_commande, statut, details } = req.body; // 'details' est le nouveau tableau de lignes
+            const currentUserId = req.user.id;
+
+            t = await db.transaction(); // Démarrer la transaction
+
             //Récupération de la Commande existante ---
             const commandeToUpdate = await Commande.findByPk(commandeId, {
                 include: [{
@@ -160,14 +165,13 @@ class CommandeController {
                 return res.status(404).json({ message: 'Commande non trouvée.' });
             }
 
-            //Vérification des Statuts et Permissions ---
             // Empêcher la modification si la commande est déjà finalisée (si statut est 'Livrée')
             if (commandeToUpdate.statut === 'Livrée') {
                 await t.rollback();
                 return res.status(403).json({ message: 'Impossible de modifier une commande déjà livrée ou archivée.' });
             }
 
-            // Mise à Jour des Lignes de Détail et du Stock ---
+            // Mise à Jour des Lignes de Détail et du Stock
             
             //Gérer les lignes existantes et les lignes supprimées
             const existingDetailsMap = new Map();
@@ -260,10 +264,7 @@ class CommandeController {
             // Validation ---
             await t.commit(); 
 
-            return res.status(200).json({ 
-                message: 'Commande mise à jour avec succès et stock ajusté.', 
-                commande: commandeToUpdate 
-            });
+            return sendSuccessResponse(res, 200, 'Commande mise à jour avec succès et stock ajusté.', commandeToUpdate);
 
         } catch (error) {
             if (t) await t.rollback(); 
@@ -273,10 +274,14 @@ class CommandeController {
             const isClientError = error.message.includes('Stock insuffisant') || error.message.includes('introuvable');
             const statusCode = isClientError ? 400 : 500;
 
-            res.status(statusCode).json({ 
-                message: 'Échec de la mise à jour de la commande.', 
-                error: error.message 
-            });
+            if (isClientError) {
+                return res.status(statusCode).json({ 
+                    message: 'Échec de la mise à jour de la commande.', 
+                    error: error.message 
+                });
+            }
+
+            return sendErrorResponse(res, error, 'Erreur lors de la mise à jour de la commande');
         }
     }
 
@@ -285,16 +290,16 @@ class CommandeController {
     static deleteCommande = async (req, res) => {
         const commandeId = req.params.id;
         try {
-            const commandeData = await commande.findByPk(commandeId);
+            const commandeData = await Commande.findByPk(commandeId);
             if (!commandeData) {
                 return res.status(404).json({ message: 'Commande non trouvée' });
             }
             await commandeData.destroy();
-            return res.status(200).json({ message: 'Commande supprimée avec succès' });
+            return sendSuccessResponse(res, 200, 'Commande supprimée avec succès', { id: commandeId });
         }
         catch (error) {
             console.error('Erreur lors de la suppression de la commande :', error);
-            res.status(500).json({ error: error.message });
+            return sendErrorResponse(res, error, 'Erreur lors de la suppression de la commande');
         }
 }   
 }

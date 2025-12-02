@@ -1,5 +1,7 @@
 const Produit = require('../models/produit.model');
 const { Op } = require('sequelize');
+const { sendErrorResponse } = require('../utils/error.utils');
+const { sendSuccessResponse } = require('../utils/response.utils');
 
 class ProduitController {
     // Fonction pour lister tous les produits (GET /api/produits)
@@ -9,10 +11,10 @@ class ProduitController {
             if (produits.length === 0) {
                 return res.status(404).json({ message: 'Aucun produit trouvé' });
             }
-            return res.status(200).json(produits);
+            return sendSuccessResponse(res, 200, 'Produits récupérés avec succès', produits);
         } catch (error) {
             console.error('Erreur lors de la récupération des produits :', error);
-            res.status(500).json({ error: error.message });
+            return sendErrorResponse(res, error, 'Erreur lors de la récupération des produits');
         }
     }
     
@@ -31,10 +33,10 @@ class ProduitController {
             if (produits.length === 0) {
                 return res.status(404).json({ message: 'Aucun produit trouvé pour la recherche donnée' });
             }
-            return res.status(200).json(produits);
+            return sendSuccessResponse(res, 200, 'Produits trouvés pour la recherche donnée', produits);
         } catch (error) {
-            res.json({ message: 'Erreur lors de la recherche des produits', error: error.message });
-            res.status(500).json({ error: error.message });
+            console.error('Erreur lors de la recherche des produits :', error);
+            return sendErrorResponse(res, error, 'Erreur lors de la recherche des produits');
         }
     }
     
@@ -48,10 +50,10 @@ class ProduitController {
             if (produits.length === 0) {
                 return res.status(404).json({ message: 'Aucun produit trouvé pour cette catégorie' });
             }
-            return res.status(200).json(produits);
+            return sendSuccessResponse(res, 200, 'Produits filtrés par catégorie récupérés avec succès', produits);
         } catch (error) {
-            res.json({ message: 'Erreur lors du filtrage des produits par catégorie', error: error.message });
-            res.status(500).json({ error: error.message });
+            console.error('Erreur lors du filtrage des produits par catégorie :', error);
+            return sendErrorResponse(res, error, 'Erreur lors du filtrage des produits par catégorie');
         }
     }
 
@@ -63,11 +65,11 @@ class ProduitController {
             if (!produit) {
                 return res.status(404).json({ message: 'Produit non trouvé' });
             }
-            return res.status(200).json(produit);
+            return sendSuccessResponse(res, 200, 'Produit récupéré avec succès', produit);
         }
         catch (error) {
             console.error('Erreur lors de la récupération du produit :', error);
-            res.status(500).json({ error: error.message });
+            return sendErrorResponse(res, error, 'Erreur lors de la récupération du produit');
         }
     }
     // Fonction pour créer un nouveau produit (POST /api/produits)
@@ -81,17 +83,24 @@ class ProduitController {
             }
 
             //Vérification des champs obligatoires
-            if(!name || !Prix_vente || !quantite_stock || !categorie_id){
+            if(!name || !description || !Prix_vente || !quantite_stock || !categorie_id){
                 return res.status(400).json({ message: 'Veuillez remplir tous les champs obligatoires.' });
             }
             
 
-            const produit = await Produit.create({ name, description, Prix_vente, quantite_stock, categorie_id, created_by: req.user.id });
-            return res.status(201).json(produit);
+            const produit = await Produit.create({
+                 name,
+                 description,
+                 Prix_vente,
+                 quantite_stock,
+                 categorie_id,
+                 created_by: req.user.id ,
+                 updated_by: req.user.id });
+            return sendSuccessResponse(res, 201, 'Produit créé avec succès', produit);
         }
         catch (error) {
             console.error('Erreur lors de la création du produit :', error);
-            res.status(500).json({ error: error.message });
+            return sendErrorResponse(res, error, 'Erreur lors de la création du produit');
         }
     }
     // Fonction pour mettre à jour un produit (PUT /api/produits/:id)
@@ -104,11 +113,11 @@ class ProduitController {
                 return res.status(404).json({ message: 'Produit non trouvé' });
             }
             await produit.update({ name, description, Prix_vente, quantite_stock, categorie_id, updated_by: req.user.id });
-            return res.status(200).json(produit);
+            return sendSuccessResponse(res, 200, 'Produit mis à jour avec succès', produit);
         }
         catch (error) {
             console.error('Erreur lors de la mise à jour du produit :', error);
-            res.status(500).json({ error: error.message });
+            return sendErrorResponse(res, error, 'Erreur lors de la mise à jour du produit');
         }
     
     }

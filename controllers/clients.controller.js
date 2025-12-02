@@ -1,27 +1,7 @@
 const Client = require('../models/client.model');
 const { Op } = require('sequelize');
-
-// Formatage de la réponse client
-const formatClientResponse = (clientInstance) => {
-    if (!clientInstance) return null;
-    const data = clientInstance.toJSON();
-    return {
-        id: data.id,
-        name: data.name,
-        email: data.email,
-        tel: data.tel,
-        adresse: data.adresse
-    };
-}
-
-// Fonction pour envoyer une réponse standardisée
-const sendSuccessResponse = (res, statusCode, message, data) => {
-    return res.status(statusCode).json({
-        message,
-        data
-    });
-}
-
+const { sendErrorResponse } = require('../utils/error.utils');
+const { sendSuccessResponse } = require('../utils/response.utils');
 
 class ClientController {
     // Fonction pour lister tous les clients (GET /api/clients)
@@ -34,7 +14,7 @@ class ClientController {
              return sendSuccessResponse(res, 200, 'Clients récupérés avec succès', clients.map(formatClientResponse));
         } catch (error) {
             console.error('Erreur lors de la récupération des clients :', error);
-            res.status(500).json({ error: error.message });
+            return sendErrorResponse(res, error, 'Erreur lors de la récupération des clients');
         }
     }
 
@@ -49,7 +29,7 @@ class ClientController {
             return sendSuccessResponse(res, 200, 'Client récupéré avec succès', formatClientResponse(client));
         } catch (error) {
             console.error('Erreur lors de la récupération du client :', error);
-            res.status(500).json({ error: error.message });
+            return sendErrorResponse(res, error, 'Erreur lors de la récupération du client');
         }
     }
 
@@ -73,7 +53,7 @@ class ClientController {
             
         } catch (error) {
             console.error('Erreur lors de la création du client :', error);
-            res.status(500).json({ error: error.message });
+            return sendErrorResponse(res, error, 'Erreur lors de la création du client');
         }
     }
 
@@ -90,7 +70,7 @@ class ClientController {
             return sendSuccessResponse(res, 200, 'Client mis à jour avec succès', formatClientResponse(client));
         } catch (error) {
             console.error('Erreur lors de la mise à jour du client :', error);
-            res.status(500).json({ error: error.message });
+            return sendErrorResponse(res, error, 'Erreur lors de la mise à jour du client');
         }
     }
 
@@ -103,10 +83,10 @@ class ClientController {
                 return res.status(404).json({ message: 'Client non trouvé' });
             }
             await client.destroy();
-            return res.status(200).json({ message: 'Client supprimé avec succès' });
+            return sendSuccessResponse(res, 200, 'Client supprimé avec succès', { id: clientId });
         } catch (error) {
             console.error('Erreur lors de la suppression du client :', error);
-            res.status(500).json({ error: error.message });
+            return sendErrorResponse(res, error, 'Erreur lors de la suppression du client');
         }
     }
     

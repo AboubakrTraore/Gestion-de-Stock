@@ -42,6 +42,7 @@ app.use('/api/users', usersRoutes);
 app.use('/api/fournisseurs', fournisseursRoutes);
 app.use('/api/clients', clientsRoutes);
 app.use('/api/categories', categoriesRoutes);
+app.use('/api/produits', produitsRoutes);
 
 
 

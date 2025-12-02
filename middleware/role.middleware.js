@@ -30,6 +30,7 @@ const checkRole = (...allowedRoles) => {
     return (req, res, next) => {
         const userRole = req.user?.role;
         
+        // Vérification de l'existence du rôle utilisateur
         if (!userRole) {
             return res.status(403).json({ 
                 message: 'Accès refusé. Autorisation insuffisante.' 
@@ -43,9 +44,10 @@ const checkRole = (...allowedRoles) => {
         const normalizedUserRole = userRole.toLowerCase();
         
         // 3. Mapper sur le tableau aplati
+        // pour normaliser les rôles autorisés
         const normalizedAllowedRoles = flatAllowedRoles.map(role => role.toLowerCase());
        
-
+        // 4. Vérification de l'inclusion
         if (!normalizedAllowedRoles.includes(normalizedUserRole)) {
             return res.status(403).json({ 
                 message: 'Accès refusé. Autorisation insuffisante.' 

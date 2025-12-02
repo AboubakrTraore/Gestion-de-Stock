@@ -1,6 +1,8 @@
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 const User = require('../models/user.model');
+const { sendErrorResponse } = require('../utils/error.utils');
+const { sendSuccessResponse } = require('../utils/response.utils');
 
 //gestion de la cle secrete
 const JWT_SECRET = process.env.JWT_SECRET || 'votre_cle_secrete_par_defaut'
@@ -31,17 +33,17 @@ class AuthController {
             });
 
             // Envoie de la réponse
-            return res.status(200).json({
+            return sendSuccessResponse(res, 200, 'Connexion réussie', {
                 token,
                 user: {
                     id: user.id,
                     username: user.username,
                     email: user.email,
                     role: user.role,
-                }
+                },
             });
         } catch (error) {
-            res.status(500).json({ message: 'Erreur lors de la connexion', error: error.message });
+            return sendErrorResponse(res, error, 'Erreur lors de la connexion');
         }
     }
     // Fonction pour la déconnexion
@@ -61,9 +63,9 @@ class AuthController {
             });
         } catch (error) {
             console.error('Erreur lors de la déconnexion :', error);
-            res.status(500).json({ message: 'Erreur lors de la déconnexion', error: error.message });
+            return sendErrorResponse(res, error, 'Erreur lors de la déconnexion');
         }
-        res.status(200).json({ message: 'Déconnexion réussie' });
+        return sendSuccessResponse(res, 200, 'Déconnexion réussie', null);
     }
 }
 

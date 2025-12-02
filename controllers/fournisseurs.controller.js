@@ -1,5 +1,7 @@
 const express = require('express');
 const Fournisseur = require('../models/fournisseur.model');
+const { sendErrorResponse } = require('../utils/error.utils');
+const { sendSuccessResponse } = require('../utils/response.utils');
 
 class FournisseurController {
  
@@ -10,10 +12,10 @@ class FournisseurController {
             if (fournisseurs.length === 0) {
                 return res.status(404).json({ message: 'Aucun fournisseur trouvé' });
             }
-            return res.status(200).json(fournisseurs);
+            return sendSuccessResponse(res, 200, 'Fournisseurs récupérés avec succès', fournisseurs);
         } catch (error) {
             console.error('Erreur lors de la récupération des fournisseurs :', error);
-            res.status(500).json({ error: error.message });
+            return sendErrorResponse(res, error, 'Erreur lors de la récupération des fournisseurs');
         }
     }
 
@@ -25,10 +27,10 @@ class FournisseurController {
             if (!fournisseur) {
                 return res.status(404).json({ message: 'Fournisseur non trouvé' });
             }
-            return res.status(200).json(fournisseur);
+            return sendSuccessResponse(res, 200, 'Fournisseur récupéré avec succès', fournisseur);
         } catch (error) {
             console.error('Erreur lors de la récupération du fournisseur :', error);
-            res.status(500).json({ error: error.message });
+            return sendErrorResponse(res, error, 'Erreur lors de la récupération du fournisseur');
         }
     }
 
@@ -49,10 +51,10 @@ class FournisseurController {
                 tel,
                 address
             });
-            return res.status(201).json(fournisseur);
+            return sendSuccessResponse(res, 201, 'Fournisseur créé avec succès', fournisseur);
         } catch (error) {
             console.error('Erreur lors de la création du fournisseur :', error);
-            res.status(500).json({ error: error.message });
+            return sendErrorResponse(res, error, 'Erreur lors de la création du fournisseur');
         }
     }
 
@@ -70,10 +72,10 @@ class FournisseurController {
             fournisseur.tel = tel;
             fournisseur.address = address;
             await fournisseur.save();
-            return res.status(200).json(fournisseur);
+            return sendSuccessResponse(res, 200, 'Fournisseur mis à jour avec succès', fournisseur);
         } catch (error) {
             console.error('Erreur lors de la mise à jour du fournisseur :', error);
-            res.status(500).json({ error: error.message });
+            return sendErrorResponse(res, error, 'Erreur lors de la mise à jour du fournisseur');
         }
     }
 
@@ -86,10 +88,10 @@ class FournisseurController {
                 return res.status(404).json({ message: 'Fournisseur non trouvé' });
             }
             await fournisseur.destroy();
-            return res.status(200).json({ message: 'Fournisseur supprimé avec succès' });
+            return sendSuccessResponse(res, 200, 'Fournisseur supprimé avec succès', { id: fournisseurId });
         } catch (error) {
             console.error('Erreur lors de la suppression du fournisseur :', error);
-            res.status(500).json({ error: error.message });
+            return sendErrorResponse(res, error, 'Erreur lors de la suppression du fournisseur');
         }
     }
     
